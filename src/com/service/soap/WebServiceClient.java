@@ -22,6 +22,25 @@ public class WebServiceClient {
 	protected byte[][] attachment_data = null;
 	protected String xmlstring = "";
 
+	String basicauth_user="";
+			String basicauth_pwd="";
+			
+	public String getBasicauth_user() {
+				return basicauth_user;
+			}
+
+			public void setBasicauth_user(String basicauth_user) {
+				this.basicauth_user = basicauth_user;
+			}
+
+			public String getBasicauth_pwd() {
+				return basicauth_pwd;
+			}
+
+			public void setBasicauth_pwd(String basicauth_pwd) {
+				this.basicauth_pwd = basicauth_pwd;
+			}
+
 	public String getBoundary() {
 		return boundary;
 	}
@@ -124,6 +143,61 @@ public class WebServiceClient {
 
 	}
 
+	 public final static String base64encode(byte[] d)
+	  {
+	    if (d == null) return null;
+	    byte data[] = new byte[d.length+2];
+	    System.arraycopy(d, 0, data, 0, d.length);
+	    byte dest[] = new byte[(data.length/3)*4];
+
+	    // 3-byte to 4-byte conversion
+	    for (int sidx = 0, didx=0; sidx < d.length; sidx += 3, didx += 4)
+	    {
+	      dest[didx]   = (byte) ((data[sidx] >>> 2) & 077);
+	      dest[didx+1] = (byte) ((data[sidx+1] >>> 4) & 017 |
+	                  (data[sidx] << 4) & 077);
+	      dest[didx+2] = (byte) ((data[sidx+2] >>> 6) & 003 |
+	                  (data[sidx+1] << 2) & 077);
+	      dest[didx+3] = (byte) (data[sidx+2] & 077);
+	    }
+
+	    // 0-63 to ascii printable conversion
+	    for (int idx = 0; idx <dest.length; idx++)
+	    {
+	      if (dest[idx] < 26)     dest[idx] = (byte)(dest[idx] + 'A');
+	      else if (dest[idx] < 52)  dest[idx] = (byte)(dest[idx] + 'a' - 26);
+	      else if (dest[idx] < 62)  dest[idx] = (byte)(dest[idx] + '0' - 52);
+	      else if (dest[idx] < 63)  dest[idx] = (byte)'+';
+	      else            dest[idx] = (byte)'/';
+	    }
+
+	    // add padding
+	    for (int idx = dest.length-1; idx > (d.length*4)/3; idx--)
+	    {
+	      dest[idx] = (byte)'=';
+	    }
+	    return new String(dest);
+	  }
+
+	  /**
+	   * Encode a String using Base64 using the default platform encoding
+	   **/
+	  public final static String base64encode(String s) {
+	    return base64encode(s.getBytes());
+	  }
+	  
+	public void addAuth(HttpURLConnection connection){
+		
+		basicauth_user="";
+		String basicauth_pwd="";
+		
+		if("" != basicauth_user && "" != basicauth_pwd  ){
+		
+		String encoded = base64encode(basicauth_user+":"+basicauth_pwd);
+		connection.setRequestProperty("Authorization", "Basic "+encoded);
+		}
+		
+	}
 	public String getWebserviceresult() throws MalformedURLException, IOException {
 
 		// Code to make a webservice HTTP request
@@ -144,6 +218,7 @@ public class WebServiceClient {
 		URLConnection connection = url.openConnection();
 		HttpURLConnection httpConn = (HttpURLConnection) connection;
 
+		addAuth(httpConn);
 		httpConn.setRequestProperty("Content-Type", "text/xml; charset=" + charset + ";action=\"" + soap_action + "\"");
 
 		httpConn.addRequestProperty("MIME-Version", "1.0");
@@ -194,6 +269,7 @@ public class WebServiceClient {
 		URLConnection connection = url.openConnection();
 		HttpURLConnection httpConn = (HttpURLConnection) connection;
 
+		addAuth(httpConn);
 		httpConn.setRequestProperty("Content-Type",
 				"multipart/related; type=\"application/xop+xml\"; start=\"<rootpart@soapui.org>\"; start-info=\"text/xml\";action=\""
 						+ soap_action + "\"; boundary=\"" + boundary + "\"");

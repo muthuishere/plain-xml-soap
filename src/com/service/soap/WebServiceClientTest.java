@@ -66,6 +66,9 @@ public class WebServiceClientTest {
 		String upload_file = "C:\\ar.doc";
 		String upload_file_mime = "application/msword";
 		String upload_file_name = "ar.doc";
+		
+	
+		
 
 		WebServiceClient js = new WebServiceClient();
 
@@ -92,6 +95,17 @@ public class WebServiceClientTest {
 		String sx = readfileasString(soap_req_xml_file);
 		js.setRequest_xml(sx);
 
+
+		
+		/*
+		 * To add basic auth headers
+		String basicauth_user = "xxx";		
+		String basicauth_pwd = "yyy";
+		js.setBasicauth_pwd(basicauth_pwd);
+		js.setBasicauth_user(basicauth_user);
+		*/
+		
+		
 		String response = "";
 		try {
 			response = js.getWebserviceMOMresult();
