@@ -1,12 +1,17 @@
-package com.service.soap;
+package com.service.tests;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 
-public class WebServiceClientTest {
+import javax.xml.soap.SOAPConstants;
+
+import com.service.soap.GenericWebServiceClient;
+
+public class TestGenericWebserviceClient {
+
+	public TestGenericWebserviceClient() {
+		// TODO Auto-generated constructor stub
+	}
 
 	static String readfileasString(String filename) {
 
@@ -70,7 +75,7 @@ public class WebServiceClientTest {
 	
 		
 
-		WebServiceClient js = new WebServiceClient();
+		GenericWebServiceClient js = new GenericWebServiceClient();
 
 		// Testing for single attachment
 		byte[][] attachment = new byte[1][];
@@ -108,11 +113,8 @@ public class WebServiceClientTest {
 		
 		String response = "";
 		try {
-			response = js.getWebserviceMOMresult();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
+			response = js.callSoap(SOAPConstants.SOAP_1_1_CONTENT_TYPE);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -122,34 +124,47 @@ public class WebServiceClientTest {
 
 	}
 
+	
+	
+	
 	/*
 	 * Method to test webservice directly via plain xml
 	 */
-	public static void testWebservice() {
+	public  void testWebservice() {
 
 		// Modify below data suites your request
-		String url = "http://localhost:8080/WSEndpoint";
+		
+		
+		
+			String url = "http://localhost:8080/WSEndpoint";
 		String soap_req_xml_file = "C:\\soap_request.xml";
 		String soap_action = "/Processes/Test/WSACTION";
+		
+		
+		final String username = "_USERNAME";
+		final String password = "_PASSWORD";
+		
+		
+		String sx = readfileasString(soap_req_xml_file);
+		
+		
 
-		WebServiceClient js = new WebServiceClient();
+		GenericWebServiceClient js = new GenericWebServiceClient();
 
 		// Set Endpoint & SOAP Action
 
 		js.setEndpoint(url);
 		js.setSoap_action(soap_action);
+		js.setBasicauth_user(username);
+		js.setBasicauth_pwd(password);
 
-		// Set SOAP Request PLain XML
-		String sx = readfileasString(soap_req_xml_file);
 		js.setRequest_xml(sx);
 
 		String response = "";
 		try {
-			response = js.getWebserviceMOMresult();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
+			 
+			response = js.callSoap(SOAPConstants.SOAP_1_1_CONTENT_TYPE);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -158,14 +173,16 @@ public class WebServiceClientTest {
 		System.out.println(response);
 
 	}
+	
 
-	/*
-	 * Test to Invoke web service
-	 */
-	public static void main(String[] args) {
-
-		testMtomWebservice();
-		testWebservice();
+	public void testapp(){
+		
 	}
-
+	public static void main(String[] args) throws Exception {
+	
+		
+	new TestGenericWebserviceClient().testWebservice();
+	
+	}
+	
 }
